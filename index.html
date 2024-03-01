@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Documentation  -->
+  <!-- Load the GeoJSON File - 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson' -->
+  <!-- Load icon - https://jsfiddle.net/9aheo6xb/ -->
+
+  <title>Running Klompenpaden</title>
+
+  <!-- <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAwUExURQAAAFWZmZtT09Paqqqp6enru7v8HBwe/v7+Tk5M/Pz9/f39/v7+4ODjz8/P///9N9Af4AAAAFdFJOUwBA5thmAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+QCEgYyN9P8dAAMf7gZbAAABK0lEQVQ4y+3TWw7CQBSE4V7JkiEHBZrIrbWRAiY0K0CmzALmzAKNkVwAYuF/r/efV7/DuN63jH5/9na5Q5KKZZgRSkzXC8p7VZWKvskZXR7VZWOxkZj7VZWN2lZTK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrLKNt7gE5b5/QD7MAAAAASUVORK5CYII=" /> -->
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+
+  <!-- Javascript -->
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
+
+  <style>
+    /* Define the styles for the sidebar */
+    .sidebar {
+      font-family: "Font Awesome 5 Free";
+      font-size: 15px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: white;
+      border-right: 2px solid #ddd;
+      overflow: hidden;
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+    }
+
+    /* Define the styles for the map */
+    .map {
+      position: fixed;
+      top: 0;
+      left: 250px;
+      width: calc(100% - 250px);
+      height: 100%;
+      z-index: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="sidebar" class="sidebar">
+    <!-- Add your sidebar content here -->
+    <br>
+    <h2>Running Klompenpaden</h2>
+    <!-- <p>This is some text with a <i class="fas fa-check"></i> Font Awesome icon in it.</p> -->
+    <br>
+    <br>
+    <!--  Information -->
+    <br>
+    <p style="color:rgb(0, 156, 45);">Done</p>
+    <p style="color:rgb(177, 0, 38);">Not yet done</p>
+  </div>
+
+  <div id="map" class="map"></div>
+
+  <script>
+    // Create the map
+    var map = L.map('map').setView([52.2, 5.8], 8);
+
+    // Set up the OSM layer
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      minZoom: 0,
+      maxZoom: 20
+    }).addTo(map);
+
+    // get color depending on population density value
+    function getColor(d) {
+      return d == NULL ? '#b10026' :
+        '#ffffb2';
+    }
+
+    function style(feature) {
+      return {
+        weight: 2,
+        opacity: 1,
+        color: getColor(feature.properties.Date)
+      };
+    }
+
+    $.getJSON("running_klompenpaden.geojson", function (data) {
+      // add GeoJSON layer to the map once the file is loaded
+      var datalayer = L.geoJson(data, {
+        style: function (feature) {
+          d = feature.properties.Date;
+          return d == null ? { color: ' #ff3308' } :
+            { color: '#009c2d' };
+        },
+        onEachFeature: function (feature, featureLayer) {
+          featureLayer.bindPopup(feature.properties.NAAM + "<br>" + feature.properties.Date);
+        }
+      }).addTo(map);
+      //map.fitBounds(datalayer.getBounds());
+    })
+
+  </script>
+</body>
+
+</html>
