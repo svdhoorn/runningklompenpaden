@@ -1,124 +1,270 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Running Klompenpaden</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 1rem;
+        background: #f5f5f5;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #333;
+      }
 
-<head>
-  <!-- Documentation  -->
-  <!-- Load the GeoJSON File - 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson' -->
-  <!-- Load icon - https://jsfiddle.net/9aheo6xb/ -->
+/* Add this to your existing <style> section */
 
-  <title>Running Klompenpaden</title>
+h1 {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #f5f5f5;
+  margin-bottom: 0;
+  padding: 1rem;
+}
 
-  <!-- <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAwUExURQAAAFWZmZtT09Paqqqp6enru7v8HBwe/v7+Tk5M/Pz9/f39/v7+4ODjz8/P///9N9Af4AAAAFdFJOUwBA5thmAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+QCEgYyN9P8dAAMf7gZbAAABK0lEQVQ4y+3TWw7CQBSE4V7JkiEHBZrIrbWRAiY0K0CmzALmzAKNkVwAYuF/r/efV7/DuN63jH5/9na5Q5KKZZgRSkzXC8p7VZWKvskZXR7VZWOxkZj7VZWN2lZTK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrK7VZcyaFZrLKNt7gE5b5/QD7MAAAAASUVORK5CYII=" /> -->
+.sub-header {
+  position: sticky;
+  top: 60px; /* Adjust based on h1 height */
+  z-index: 999;
+  background: #f5f5f5;
+  padding: 0.5rem 1rem;
+}
 
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
 
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
 
-  <!-- Javascript -->
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
+      .gallery {
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
 
-  <style>
-    /* Define the styles for the sidebar */
-    .sidebar {
-      font-family: "Font Awesome 5 Free";
-      font-size: 15px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 250px;
-      height: 100%;
-      background-color: white;
-      border-right: 2px solid #ddd;
-      overflow: hidden;
-      transition: transform 0.3s ease-in-out;
-      z-index: 1000;
-      padding: 20px;
-    }
+      .box {
+        position: relative;
+        height: 80px;
+        border-radius: 6px;
+        overflow: hidden;
+        color: #fff;
+        font-size: 0.85rem;
+        line-height: 1.2;
+        padding: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: #dc3545; /* RED color */
+      }
+      .box:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        z-index: 10;
+      }
 
-    .sidebar h2 {
-      text-align: center;
-    }
+      /* ---- Corner hyperlink ------------------------------------------- */
+      .box a.corner-link {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        font-size: 0.6rem;
+        color: #fff;
+        opacity: 0.9;
+        text-decoration: none;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 2px 5px;
+        border-radius: 3px;
+        transition: opacity 0.2s;
+        pointer-events: auto;
+      }
+      .box a.corner-link:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.6);
+      }
+      /* Boxes WITH a date - GREEN */
+      .box.has-date {
+        background-color: #1c8635; /* Green */
+      }
 
-    /* Define the styles for the map */
-    .map {
-      position: fixed;
-      top: 0;
-      left: 250px;
-      width: calc(100% - 250px);
-      height: 100%;
-      z-index: 1;
-    }
-  </style>
-</head>
+      /* Boxes WITHOUT a date - BLUE (was Red in comment, but hex is blue) */
+      .box.no-date {
+        background-color: #5971f8; 
+      }
 
-<body>
+      .view-btn {
+        padding: 8px 16px;
+        margin: 0 5px;
+        border: none;
+        border-radius: 4px;
+        background-color: #ddd;
+        cursor: pointer;
+        font-weight: bold;
+      }
 
-  <div id="sidebar" class="sidebar">
-    <!-- Add your sidebar content here -->
-    <br>
-    <h2>Running Klompenpaden</h2>
-    <!-- <p>This is some text with a <i class="fas fa-check"></i> Font Awesome icon in it.</p> -->
-    <br>
-    <br>
-    <!--  Information -->
-    <br>
-    <p style="color:rgb(0, 156, 45);">Done</p>
-    <p style="color:rgb(177, 0, 38);">Not yet done</p>
-  </div>
+      .view-btn.active {
+        background-color: #333;
+        color: white;
+      }
 
-  <div id="map" class="map"></div>
+      .view-btn:hover:not(.active) {
+        background-color: #ccc;
+      }
 
-  <script>
-    // Create the map
-    var map = L.map('map').setView([52.2, 5.8], 8);
+    </style>
 
-    // Set up the OSM layer
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      minZoom: 0,
-      maxZoom: 20
-    }).addTo(map);
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+  <body>
+    <h1>Running Klompenpaden</h1>
 
-    // get color depending on population density value
-    function getColor(d) {
-      return d == NULL ? '#b10026' :
-        '#ffffb2';
-    }
+    <div class="sub-header" style="text-align: center; margin-bottom: 1rem">
+      <button id="btn-gallery" class="view-btn active">Gallery</button>
+      <button id="btn-map" class="view-btn">Map</button>
+    </div>
 
-    function style(feature) {
-      return {
-        weight: 2,
-        opacity: 1,
-        color: getColor(feature.properties.Date)
-      };
-    }
+    <div id="gallery" class="gallery"></div>
+    <!-- Map is hidden by default and will only be shown when button is clicked -->
+    <div id="map" style="height: 800px; width: 100%; display: none"></div>
 
-    $.getJSON("running_klompenpaden.geojson", function (data) {
-      // add GeoJSON layer to the map once the file is loaded
-      var datalayer = L.geoJson(data, {
-        style: function (feature) {
-          d = feature.properties.Date;
-          return d == null ? { color: ' #ff3308' } :
-            { color: '#009c2d' };
-        },
-        onEachFeature: function (feature, featureLayer) {
-          featureLayer.bindPopup(feature.properties.NAAM + "<br>" + feature.properties.Date);
+    <script>
+      let map = null;
+      let geoJsonData = null; // Store data globally to avoid refetching
+
+      // 1. Function to build the Gallery ONLY
+      async function buildGallery() {
+        const gallery = document.getElementById("gallery");
+        const geoJsonFile = "klompenpaden_routes.geojson";
+
+        try {
+          const response = await fetch(geoJsonFile);
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+
+          const data = await response.json();
+          geoJsonData = data; // Save for map usage later
+
+          if (!data.features || !Array.isArray(data.features)) {
+            throw new Error(
+              "Invalid GeoJSON format: Expected a FeatureCollection",
+            );
+          }
+
+          gallery.innerHTML = ""; // Clear existing
+
+          data.features.forEach((feature) => {
+            const name = feature.properties?.klompenpad_naam || "Unknown Route";
+
+            const hasDate =
+              feature.properties?.date &&
+              feature.properties.date !== null &&
+              feature.properties.date !== "";
+
+            const div = document.createElement("div");
+            div.className = `box ${hasDate ? "has-date" : "no-date"}`;
+            div.textContent = name;
+
+            const searchUrl = feature?.properties.url;
+
+            const link = document.createElement("a");
+            link.className = "corner-link";
+            link.href = searchUrl;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.title = `Go to ${name}`;
+            link.textContent = "↗";
+
+            div.appendChild(link);
+            gallery.appendChild(div);
+          });
+        } catch (err) {
+          console.error("Failed to load gallery data:", err);
+          gallery.innerHTML = `<p style="color:red; text-align:center;">
+      Unable to load gallery data.<br>
+      Make sure the file <strong>${geoJsonFile}</strong> exists in the same folder.<br>
+      <small>Error: ${err.message}</small>
+    </p>`;
         }
-      }).addTo(map);
-      //map.fitBounds(datalayer.getBounds());
-    })
+      }
 
-  </script>
-</body>
+      // 2. Function to Initialize and Show the Map (Only called when button clicked)
+      function initAndShowMap() {
+        const mapContainer = document.getElementById("map");
+        
+        // If map already exists, just show it
+        if (map) {
+          mapContainer.style.display = "block";
+          map.invalidateSize(); // Fix rendering issues when showing hidden maps
+          return;
+        }
 
+        // If we have data, create the map
+        if (!geoJsonData) {
+           // If data wasn't loaded yet (edge case), try to fetch it or alert
+           console.warn("GeoJSON data not loaded yet. Fetching...");
+           // In a real scenario, you might want to await fetch here, 
+           // but since buildGallery runs first, data should be ready.
+           return; 
+        }
+
+        mapContainer.style.display = "block";
+        
+        map = L.map("map").setView([52.1326, 5.2913], 8);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map);
+
+        // Add GeoJSON layer
+        L.geoJSON(geoJsonData, {
+          onEachFeature: function (feature, layer) {
+            const name = feature.properties?.klompenpad_naam || "Unknown Route";
+            const hasDate =
+              feature.properties?.date &&
+              feature.properties.date !== null &&
+              feature.properties.date !== "";
+
+            const color = hasDate ? "#1c8635" : "#5971f8";
+            layer.setStyle({ color: color, weight: 3 });
+
+            layer.bindPopup(`<b>$${name}</b><br>$${hasDate ? "Has date" : "No date"}`);
+          },
+        }).addTo(map);
+
+        map.fitBounds(L.geoJSON(geoJsonData).getBounds());
+      }
+
+      // Run Gallery on Load
+      document.addEventListener("DOMContentLoaded", buildGallery);
+
+      // View toggle logic
+      document.getElementById("btn-gallery").addEventListener("click", () => {
+        document.getElementById("gallery").style.display = "grid";
+        document.getElementById("map").style.display = "none";
+        document.getElementById("btn-gallery").classList.add("active");
+        document.getElementById("btn-map").classList.remove("active");
+      });
+
+      document.getElementById("btn-map").addEventListener("click", () => {
+        document.getElementById("gallery").style.display = "none";
+        document.getElementById("map").style.display = "block";
+        document.getElementById("btn-map").classList.add("active");
+        document.getElementById("btn-gallery").classList.remove("active");
+        
+        // Initialize map only when this button is clicked
+        initAndShowMap();
+      });
+    </script>
+  </body>
 </html>
