@@ -7,70 +7,117 @@
       body {
         font-family: Arial, Helvetica, sans-serif;
         margin: 0;
-        padding: 1rem;
+        padding: 0;
         background: #f5f5f5;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
+
+      /* Top Header Area */
+      header {
+        background: #fff;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        flex-shrink: 0;
+      }
+
       h1 {
         text-align: center;
-        margin-bottom: 1rem;
+        margin: 0 0 1rem 0;
         color: #333;
+        font-size: 1.5rem;
       }
 
-/* Add this to your existing <style> section */
+      /* Split Screen Container */
+      .split-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden; /* Prevents full page scroll */
+        height: calc(100vh - 100px); /* Adjust based on header height */
+      }
 
-h1 {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: #f5f5f5;
-  margin-bottom: 0;
-  padding: 1rem;
-}
+      /* Left Side: Gallery & Search */
+      .left-panel {
+        width: 40%;
+        min-width: 300px;
+        background: #f5f5f5;
+        border-right: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-.sub-header {
-  position: sticky;
-  top: 60px; /* Adjust based on h1 height */
-  z-index: 999;
-  background: #f5f5f5;
-  padding: 0.5rem 1rem;
-}
+      .search-container {
+        padding: 1rem;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        flex-shrink: 0;
+      }
 
-      
+      #search-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
 
+      .gallery-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+      }
 
       .gallery {
         display: grid;
-        gap: 0.5rem;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.8rem;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       }
 
       .box {
         position: relative;
-        height: 80px;
+        height: auto; /* Allow height to grow for date */
+        min-height: 80px;
         border-radius: 6px;
         overflow: hidden;
         color: #fff;
         font-size: 0.85rem;
-        line-height: 1.2;
-        padding: 8px;
+        line-height: 1.3;
+        padding: 10px;
         text-align: center;
         cursor: pointer;
         transition:
           transform 0.15s ease,
           box-shadow 0.15s ease;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: #dc3545; /* RED color */
       }
+
       .box:hover {
-        transform: scale(1.05);
+        transform: scale(1.03);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
         z-index: 10;
       }
 
-      /* ---- Corner hyperlink ------------------------------------------- */
+      .route-name {
+        font-weight: bold;
+        margin-bottom: 4px;
+        word-wrap: break-word;
+      }
+
+      .route-date {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        margin-top: 2px;
+      }
+
+      /* Corner hyperlink */
       .box a.corner-link {
         position: absolute;
         bottom: 6px;
@@ -89,35 +136,42 @@ h1 {
         opacity: 1;
         background: rgba(0, 0, 0, 0.6);
       }
-      /* Boxes WITH a date - GREEN */
+
+      /* Colors */
       .box.has-date {
         background-color: #1c8635; /* Green */
       }
-
-      /* Boxes WITHOUT a date - BLUE (was Red in comment, but hex is blue) */
       .box.no-date {
-        background-color: #5971f8; 
+        background-color: #5971f8; /* Blue */
       }
 
-      .view-btn {
-        padding: 8px 16px;
-        margin: 0 5px;
-        border: none;
-        border-radius: 4px;
-        background-color: #ddd;
-        cursor: pointer;
-        font-weight: bold;
+      /* Right Side: Map */
+      .right-panel {
+        width: 60%;
+        position: relative;
+        background: #e0e0e0;
       }
 
-      .view-btn.active {
-        background-color: #333;
-        color: white;
+      #map {
+        height: 100%;
+        width: 100%;
       }
 
-      .view-btn:hover:not(.active) {
-        background-color: #ccc;
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .split-container {
+          flex-direction: column;
+          height: auto;
+        }
+        .left-panel,
+        .right-panel {
+          width: 100%;
+          height: 50vh;
+        }
+        body {
+          height: auto;
+        }
       }
-
     </style>
 
     <link
@@ -127,24 +181,49 @@ h1 {
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </head>
   <body>
-    <h1>Running Klompenpaden</h1>
+    <header>
+      <h1>Running Klompenpaden</h1>
+    </header>
 
-    <div class="sub-header" style="text-align: center; margin-bottom: 1rem">
-      <button id="btn-gallery" class="view-btn active">Gallery</button>
-      <button id="btn-map" class="view-btn">Map</button>
+    <div class="split-container">
+      <!-- Left Panel: Search & Gallery -->
+      <div class="left-panel">
+        <div class="search-container">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search for a route..."
+          />
+        </div>
+        <div class="gallery-wrapper">
+          <div id="gallery" class="gallery"></div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Map -->
+      <div class="right-panel">
+        <div id="map"></div>
+      </div>
     </div>
-
-    <div id="gallery" class="gallery"></div>
-    <!-- Map is hidden by default and will only be shown when button is clicked -->
-    <div id="map" style="height: 800px; width: 100%; display: none"></div>
 
     <script>
       let map = null;
-      let geoJsonData = null; // Store data globally to avoid refetching
+      let geoJsonData = null;
+      let allFeatures = []; // Store processed features for filtering
 
-      // 1. Function to build the Gallery ONLY
+      // Initialize Map immediately
+      function initMap() {
+        map = L.map("map").setView([52.1326, 5.2913], 8);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map);
+      }
+
+      // Build Gallery and Filter Logic
       async function buildGallery() {
         const gallery = document.getElementById("gallery");
+        const searchInput = document.getElementById("search-input");
         const geoJsonFile = "klompenpaden_routes.geojson";
 
         try {
@@ -153,7 +232,28 @@ h1 {
             throw new Error(`HTTP error! status: ${response.status}`);
 
           const data = await response.json();
-          geoJsonData = data; // Save for map usage later
+          geoJsonData = data;
+
+          // After: geoJsonData = data;
+          if (map && geoJsonData) {
+            L.geoJSON(geoJsonData, {
+              onEachFeature: function (feature, layer) {
+                const name =
+                  feature.properties?.klompenpad_naam || "Unknown Route";
+                const hasDate =
+                  feature.properties?.date &&
+                  feature.properties.date !== null &&
+                  feature.properties.date !== "";
+
+                const color = hasDate ? "#1c8635" : "#5971f8";
+                layer.setStyle({ color: color, weight: 3 });
+
+                layer.bindPopup(
+                  `<b>$${name}</b><br>$${hasDate ? "Has date" : "No date"}`,
+                );
+              },
+            }).addTo(map);
+          }
 
           if (!data.features || !Array.isArray(data.features)) {
             throw new Error(
@@ -161,109 +261,100 @@ h1 {
             );
           }
 
-          gallery.innerHTML = ""; // Clear existing
-
-          data.features.forEach((feature) => {
+          // Process features once
+          allFeatures = data.features.map((feature) => {
             const name = feature.properties?.klompenpad_naam || "Unknown Route";
+            const date = feature.properties?.date;
+            const hasDate = date && date !== null && date !== "";
+            const url = feature?.properties.url;
 
-            const hasDate =
-              feature.properties?.date &&
-              feature.properties.date !== null &&
-              feature.properties.date !== "";
+            return { feature, name, date, hasDate, url };
+          });
 
-            const div = document.createElement("div");
-            div.className = `box ${hasDate ? "has-date" : "no-date"}`;
-            div.textContent = name;
+          // Initial render
+          renderGallery(allFeatures);
 
-            const searchUrl = feature?.properties.url;
-
-            const link = document.createElement("a");
-            link.className = "corner-link";
-            link.href = searchUrl;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.title = `Go to ${name}`;
-            link.textContent = "↗";
-
-            div.appendChild(link);
-            gallery.appendChild(div);
+          // Search Listener
+          searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allFeatures.filter((item) =>
+              item.name.toLowerCase().includes(term),
+            );
+            renderGallery(filtered);
           });
         } catch (err) {
           console.error("Failed to load gallery data:", err);
-          gallery.innerHTML = `<p style="color:red; text-align:center;">
-      Unable to load gallery data.<br>
-      Make sure the file <strong>${geoJsonFile}</strong> exists in the same folder.<br>
-      <small>Error: ${err.message}</small>
-    </p>`;
+          gallery.innerHTML = `<p style="color:red; text-align:center; padding: 1rem;">
+            Unable to load data.<br>
+            Make sure <strong>${geoJsonFile}</strong> exists.<br>
+            <small>Error: ${err.message}</small>
+          </p>`;
         }
       }
 
-      // 2. Function to Initialize and Show the Map (Only called when button clicked)
-      function initAndShowMap() {
-        const mapContainer = document.getElementById("map");
-        
-        // If map already exists, just show it
-        if (map) {
-          mapContainer.style.display = "block";
-          map.invalidateSize(); // Fix rendering issues when showing hidden maps
-          return;
-        }
+      function renderGallery(features) {
+        const gallery = document.getElementById("gallery");
+        gallery.innerHTML = "";
 
-        // If we have data, create the map
-        if (!geoJsonData) {
-           // If data wasn't loaded yet (edge case), try to fetch it or alert
-           console.warn("GeoJSON data not loaded yet. Fetching...");
-           // In a real scenario, you might want to await fetch here, 
-           // but since buildGallery runs first, data should be ready.
-           return; 
-        }
+        // Sort: Has date first, then alphabetical
+        features.sort((a, b) => {
+          if (a.hasDate && !b.hasDate) return -1;
+          if (!a.hasDate && b.hasDate) return 1;
+          return a.name.localeCompare(b.name);
+        });
 
-        mapContainer.style.display = "block";
-        
-        map = L.map("map").setView([52.1326, 5.2913], 8);
+        features.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = `box ${item.hasDate ? "has-date" : "no-date"}`;
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; OpenStreetMap contributors",
-        }).addTo(map);
+          // Content structure
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "route-name";
+          nameSpan.textContent = item.name;
 
-        // Add GeoJSON layer
-        L.geoJSON(geoJsonData, {
-          onEachFeature: function (feature, layer) {
-            const name = feature.properties?.klompenpad_naam || "Unknown Route";
-            const hasDate =
-              feature.properties?.date &&
-              feature.properties.date !== null &&
-              feature.properties.date !== "";
+          div.appendChild(nameSpan);
 
-            const color = hasDate ? "#1c8635" : "#5971f8";
-            layer.setStyle({ color: color, weight: 3 });
+          if (item.hasDate) {
+            const dateSpan = document.createElement("span");
+            dateSpan.className = "route-date";
+            dateSpan.textContent = item.date;
+            div.appendChild(dateSpan);
+          }
 
-            layer.bindPopup(`<b>$${name}</b><br>$${hasDate ? "Has date" : "No date"}`);
-          },
-        }).addTo(map);
+          // Corner Link
+          if (item.url) {
+            const link = document.createElement("a");
+            link.className = "corner-link";
+            link.href = item.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "↗";
+            div.appendChild(link);
+          }
 
-        map.fitBounds(L.geoJSON(geoJsonData).getBounds());
+          // Click to Zoom
+          div.addEventListener("click", () => {
+            if (map) {
+              const layer = L.geoJSON(item.feature);
+              const bounds = layer.getBounds();
+              map.flyToBounds(bounds, { padding: [50, 50] });
+
+              // Optional: Highlight the box visually
+              document
+                .querySelectorAll(".box")
+                .forEach((b) => (b.style.border = "none"));
+              div.style.border = "3px solid #fff";
+            }
+          });
+
+          gallery.appendChild(div);
+        });
       }
 
-      // Run Gallery on Load
-      document.addEventListener("DOMContentLoaded", buildGallery);
-
-      // View toggle logic
-      document.getElementById("btn-gallery").addEventListener("click", () => {
-        document.getElementById("gallery").style.display = "grid";
-        document.getElementById("map").style.display = "none";
-        document.getElementById("btn-gallery").classList.add("active");
-        document.getElementById("btn-map").classList.remove("active");
-      });
-
-      document.getElementById("btn-map").addEventListener("click", () => {
-        document.getElementById("gallery").style.display = "none";
-        document.getElementById("map").style.display = "block";
-        document.getElementById("btn-map").classList.add("active");
-        document.getElementById("btn-gallery").classList.remove("active");
-        
-        // Initialize map only when this button is clicked
-        initAndShowMap();
+      // Initialize on load
+      document.addEventListener("DOMContentLoaded", () => {
+        initMap();
+        buildGallery();
       });
     </script>
   </body>
