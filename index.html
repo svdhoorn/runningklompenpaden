@@ -240,6 +240,9 @@
               onEachFeature: function (feature, layer) {
                 const name =
                   feature.properties?.klompenpad_naam || "Unknown Route";
+                const date =
+                  feature.properties?.date || "Not yet done";
+
                 const hasDate =
                   feature.properties?.date &&
                   feature.properties.date !== null &&
@@ -249,7 +252,7 @@
                 layer.setStyle({ color: color, weight: 3 });
 
                 layer.bindPopup(
-                  `<b>$${name}</b><br>$${hasDate ? "Has date" : "No date"}`,
+                  `<b>${name}</b><br>${date}`,
                 );
               },
             }).addTo(map);
